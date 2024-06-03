@@ -1,6 +1,213 @@
+---
+title: "Análisis Estadístico Proyecto"
+author:
+  - Bruno Vázquez Espinoza - A00838521
+  - Héctor Orozco Aguirre - A01352369
+  - Juan Pablo Martínez Téllez - A01276742
+  - 
+output:
+  pdf_document: default
+---
+
 ```{r}
 rm(list=ls())
 
 datos <- read.csv("G512-datos02.csv")
-write.csv(datos1, file = "datosSalvados.csv")
+head(datos)
+```
+### Las Variables y Datos
+#### ¿De cuántos datos consta tu base de datos? 
+```{r}
+dim(datos)[1]
+```
+#### ¿Cuántas variables están involucradas?
+```{r}
+dim(datos)[2]
+```
+
+#### ¿Qué países le toco analizar a tu equipo?
+```{r}
+unique(datos$entidad)
+```
+#### Identifica y agrupa las variables según su naturaleza (geográficas, fuentes de energía y económicas)
+```{r}
+encabezados <- names(datos)
+```
+
+#### ¿Cuántas variables geográficas identificaron?
+```{r}
+tail(encabezados, 4)
+```
+#### ¿Cuántas variables de fuentes de energía identificaron?
+```{r}
+encabezados[4:16]
+```
+#### ¿Cuántas variables económicas identificaron?
+```{r}
+encabezados[17:18]
+```
+
+### Elección de las Variables con las que se Trabajará
+#### ¿Qué variables seleccionaron para trabajar? ¿Por qué?
+##### Entidad => Autralia
+```{r}
+australia <- datos[datos$entidad == "Australia", ]
+summary(australia)
+```
+##### Fuentes de energía => (electrd_fosiles, electrd_de_f_bajas_carb, electr_energ_renov)
+```{r}
+electrd_fosiles <- australia$electrd_fosiles
+summary(electrd_fosiles)
+electrd_de_f_bajas_carb <- australia$electrd_de_f_bajas_carb
+summary(electrd_de_f_bajas_carb)
+electr_energ_renov <- australia$electr_energ_renov
+summary(electr_energ_renov)
+```
+##### Fuente economica => (PIB_per_capita)
+```{r}
+PIB_per_capita <- australia$PIB_per_capita
+summary(PIB_per_capita)
+```
+##### Variable geográficas => (densidad_pobl_km2)
+```{r}
+densidad_pobl_km2 <- australia$densidad_pobl_km2
+summary(densidad_pobl_km2)
+```
+
+### Creación de una base de datos de trabajo del equipo
+```{r}
+# Instala y carga los paquetes necesarios
+install.packages("dplyr")
+library(dplyr)
+
+# Define los países por región
+africa_del_sur <- c("Burundi", "Equatorial Guinea", "Eswatini", "Gabon", "Kenya", "Lesotho", "Madagascar", 
+                    "Malawi", "Mauritius", "Mozambique", "Namibia", "Rwanda", "South Africa", "Uganda", 
+                    "Zambia", "Zimbabwe")
+
+africa_del_norte <- c("Algeria", "Angola", "Benin", "Burkina Faso", "Cameroon", "Central African Republic", 
+                      "Egypt", "Ethiopia", "Ghana", "Guinea", "Liberia", "Mali", "Mauritania", "Morocco", 
+                      "Niger", "Nigeria", "Sao Tome and Principe", "Senegal", "Sierra Leone", "Sudan", 
+                      "Togo", "Tunisia")
+
+america_del_sur <- c("Argentina", "Brazil", "Chile", "Colombia", "Ecuador", "Guyana", "Paraguay", "Peru", 
+                     "Suriname", "Uruguay")
+
+america_centro_norte <- c("Belize", "Costa Rica", "El Salvador", "Guatemala", "Honduras", "Nicaragua", 
+                          "Panama", "Canada", "United States", "Mexico")
+
+caribe <- c("Cuba", "Dominican Republic", "Haiti", "Jamaica", "Trinidad and Tobago")
+
+europa_occidental <- c("Austria", "Belgium", "Denmark", "Finland", "France", "Germany", "Iceland", 
+                       "Ireland", "Italy", "Luxembourg", "Netherlands", "Norway", "Portugal", "Spain", 
+                       "Sweden", "Switzerland", "United Kingdom")
+
+europa_oriental <- c("Belarus", "Bulgaria", "Estonia", "Greece", "Hungary", "Latvia", "Lithuania", 
+                     "North Macedonia", "Poland", "Romania", "Slovenia", "Ukraine")
+
+asia_occidental <- c("China", "Cambodia", "Indonesia", "Japan", "Malaysia", "Mongolia", "Myanmar", 
+                     "Philippines", "Thailand")
+
+asia_central <- c("Afghanistan", "Bangladesh", "Bhutan", "India", "Kazakhstan", "Nepal", "Pakistan", 
+                  "Sri Lanka", "Tajikistan", "Uzbekistan")
+
+oceania <- c("Australia", "Fiji", "New Zealand", "Papua New Guinea", "Samoa")
+
+# Crear una nueva columna de región
+datos1 <- datos %>%
+  mutate(region = case_when(
+    entidad %in% africa_del_sur ~ "Africa del Sur",
+    entidad %in% africa_del_norte ~ "Africa del Norte",
+    entidad %in% america_del_sur ~ "America del Sur",
+    entidad %in% america_centro_norte ~ "America Centro-Norte",
+    entidad %in% caribe ~ "Caribe",
+    entidad %in% europa_occidental ~ "Europa Occidental",
+    entidad %in% europa_oriental ~ "Europa Oriental",
+    entidad %in% asia_occidental ~ "Asia Occidental",
+    entidad %in% asia_central ~ "Asia Central",
+    entidad %in% oceania ~ "Oceania",
+    TRUE ~ "Otros"
+  ))
+str(datos1)
+datos1 = select(datos1, entidad, electrd_fosiles, electrd_de_f_bajas_carb, energ_renov, PIB_per_cap, densidad_pobl_Km2,region)
+datos1=datos1[-1]
+datos1=na.omit(datos1)
+# Guardar el subconjunto de datos en un archivo CSV
+write.csv(datos1, "datosEq2.csv", row.names = FALSE)
+```
+
+### Análisis Estadístico de los datos comparativo por región
+#### Análisis Numérico (medidas resumen: centro, dispersión y posición)
+```{r}
+# Cargar la base de datos de trabajo
+datosEq2 <- read.csv("datosEq2.csv")
+
+R1 = subset(datosEq2, region == "Oceania")
+R2 = subset(datosEq2, region == "Asia Central")
+
+cat("Región 1: Oceania","\n")
+summary(R1)
+cat("Región 2: Asia Central","\n")
+summary(R2)
+
+cat("Región 1: Oceania","\n")
+apply(R1[,1:5], 2, sd)
+cat("Región 2: Asia Central","\n")
+apply(R2[,1:5], 2, sd)
+
+cat("Región 1: Oceania","\n")
+Rm = function(x)((max(x)+min(x))/2)
+apply(R1[,1:5], 2, Rm)
+cat("Región 2: Asia Central","\n")
+apply(R2[,1:5], 2, Rm)
+```
+
+#### Análisis Gráfico (histogramas y boxplots)
+```{r}
+par(mfrow=c(1,2))
+hist(R1$electrd_fosiles, col = 3, main = "Oceania", xlab = "Electrd_fosiles", ylab = "Frecuencia")
+hist(R2$electrd_fosiles, col = 3, main = "Asia Central", xlab = "Electrd_fosiles", ylab = "Frecuencia")
+
+hist(R1$electrd_de_f_bajas_carb, col = 3, main = "Oceania", xlab = "Electrd_de_f_bajas_carb", ylab = "Frecuencia")
+hist(R2$electrd_de_f_bajas_carb, col = 3, main = "Asia Central", xlab = "Electrd_de_f_bajas_carb", ylab = "Frecuencia")
+
+hist(R1$energ_renov, col = 3, main = "Oceania", xlab = "Energ_renov", ylab = "Frecuencia")
+hist(R2$energ_renov, col = 3, main = "Asia Central", xlab = "Energ_renov", ylab = "Frecuencia")
+
+hist(R1$PIB_per_cap, col = 3, main = "Oceania", xlab = "PIB_per_cap", ylab = "Frecuencia")
+hist(R2$PIB_per_cap, col = 3, main = "Asia Central", xlab = "PIB_per_cap", ylab = "Frecuencia")
+
+hist(R1$densidad_pobl_Km2, col = 3, main = "Oceania", xlab = "Densidad_pobl_Km2", ylab = "Frecuencia")
+hist(R2$densidad_pobl_Km2, col = 3, main = "Asia Central", xlab = "Densidad_pobl_Km2", ylab = "Frecuencia")
+
+
+par(mfrow=c(1,2))
+boxplot(electrd_fosiles ~ region, data = datos1, col=3:4, main = "Electricidad de origen fósil")
+boxplot(electrd_de_f_bajas_carb ~ region, data = datos1, col=3:4, main = "Electricidad de origen de fuentes bajas en carbono")
+boxplot(energ_renov ~ region, data = datos1, col=3:4, main = "Electricidad de origen renovable")
+boxplot(PIB_per_cap ~ region, data = datos1, col=3:4, main = "PIB per cápita")
+boxplot(densidad_pobl_Km2 ~ region, data = datos1, col=3:4, main = "Densidad de población por km2")
+```
+
+### Análisis de Relación
+
+#### Calcula el coeficiente de correlación para todas las variables / Gráfico de dispersión
+```{r}
+correl <- cor(R1[,1:5])
+round(correl, 3)
+
+correl <- cor(R2[,1:5])
+round(correl, 3)
+
+plot(R1, col = "blue")
+plot(R1$electrd_fosiles, R1$electrd_de_f_bajas_carb, col = "blue", main = "Oceania", xlab = "Electricidad de origen fósil", ylab = "Electricidad de origen de fuentes bajas en carbono")
+plot(R1$electrd_fosiles, R1$energ_renov, col = "blue", main = "Oceania", xlab = "Electricidad de origen fósil", ylab = "Electricidad de origen renovable")
+plot(R1$electrd_de_f_bajas_carb, R1$energ_renov, col = "blue", main = "Oceania", xlab = "Electricidad de origen de fuentes bajas en carbono", ylab = "Electricidad de origen renovable")
+plot(R1$PIB_per_cap, R1$densidad_pobl_Km2, col = "blue", main = "Oceania", xlab = "PIB per cápita", ylab = "Densidad de población por km2")
+
+plot(R2, col = "blue")
+plot(R2$electrd_fosiles, R2$electrd_de_f_bajas_carb, col = "blue", main = "Asia Central", xlab = "Electricidad de origen fósil", ylab = "Electricidad de origen de fuentes bajas en carbono")
+plot(R2$electrd_fosiles, R2$energ_renov, col = "blue", main = "Asia Central", xlab = "Electricidad de origen fósil", ylab = "Electricidad de origen renovable")
+plot(R2$electrd_de_f_bajas_carb, R2$energ_renov, col = "blue", main = "Asia Central", xlab = "Electricidad de origen de fuentes bajas en carbono", ylab = "Electricidad de origen renovable")
+plot(R2$PIB_per_cap, R2$densidad_pobl_Km2, col = "blue", main = "Asia Central", xlab = "PIB per cápita", ylab = "Densidad de población por km2")
 ```
