@@ -1,10 +1,10 @@
 ---
 title: "Análisis Estadístico Proyecto"
 author:
-  - Bruno Vázquez Espinoza - A00838521
-  - Héctor Orozco Aguirre - A01352369
-  - Juan Pablo Martínez Téllez - A01276742
-  - 
+  - Bruno Vázquez Espinoza              A00838521
+  - Héctor Orozco Aguirre               A01352369
+  - Juan Pablo Martínez Téllez          A01276742
+  - Cristian Alejandro Chávez Martinez  A00840058
 output:
   pdf_document: default
 ---
@@ -49,6 +49,13 @@ encabezados[17:18]
 
 ### Elección de las Variables con las que se Trabajará
 #### ¿Qué variables seleccionaron para trabajar? ¿Por qué?
+#### Elegimos trabajar con el PIB per cápita, la electricidad proveniente de combustibles fósiles, la electricidad con bajas emisiones de carbono, la electricidad de energías renovables y la densidad poblacional.
+#### ¿Por qué estas variables?
+#### PIB per cápita: La consideramos la mejor manera para medir la economía porque esta al ser un promedio entre la población es mas justa que el PIB total del país, por ejemplo México tiene un mayor PIB que Suiza por su gran población, pero obviamente la economía mexicana es peor que la suiza.
+#### Electricidad fósiles: Decidimos elegir 3 variables energéticas, una que representa un alto impacto ambiental, una intermedia y una baja, en este caso las energías fósiles tienen un alto impacto ambiental y grandes emisiones de carbono, por lo que entre menor sea el uso de estas el país esta mejor.
+#### Electricidad de bajas emisiones: Esta es el intermedio, pues sus emisiones si son significativas pero no tanto como las de la anterior variable.
+#### Electricidad de energías renovables: Elegimos esta porque entre mayor sea su uso significa que el país en cuestión es amigable con el medio ambiente.
+#### Densidad poblacional: Otra vez decidimos elegir una medida de promedio como lo es la densidad, pues es la mejor manera de analizar la población de un país.
 ##### Entidad => Autralia
 ```{r}
 australia <- datos[datos$entidad == "Australia", ]
@@ -77,7 +84,7 @@ summary(densidad_pobl_km2)
 ### Creación de una base de datos de trabajo del equipo
 ```{r}
 # Instala y carga los paquetes necesarios
-install.packages("dplyr")
+# install.packages("dplyr")
 library(dplyr)
 
 # Define los países por región
@@ -135,7 +142,7 @@ datos1=na.omit(datos1)
 # Guardar el subconjunto de datos en un archivo CSV
 write.csv(datos1, "datosEq2.csv", row.names = FALSE)
 ```
-
+#### ¿En nuestro caso únicamente nos toca trabajar con Oceanía y Asia Central.
 ### Análisis Estadístico de los datos comparativo por región
 #### Análisis Numérico (medidas resumen: centro, dispersión y posición)
 ```{r}
@@ -161,10 +168,13 @@ apply(R1[,1:5], 2, Rm)
 cat("Región 2: Asia Central","\n")
 apply(R2[,1:5], 2, Rm)
 ```
-
+#### Analizando estos datos podemos ver como el PIB per cápita en Oceanía es 10 veces mayor al de Asia Central, pero también vemos un uso excesivo de energías fósiles en Oceanía, esto podría sugerir que es más fácil desarrollarte económicamente utilizando combustibles fósiles, también vemos como la densidad es bastante mayor en Asia, esto se debe a que ahí existen los países con mayor densidad de población
 #### Análisis Gráfico (histogramas y boxplots)
+###
+
+
 ```{r}
-par(mfrow=c(1,2))
+
 hist(R1$electrd_fosiles, col = 3, main = "Oceania", xlab = "Electrd_fosiles", ylab = "Frecuencia")
 hist(R2$electrd_fosiles, col = 3, main = "Asia Central", xlab = "Electrd_fosiles", ylab = "Frecuencia")
 
@@ -189,6 +199,12 @@ boxplot(PIB_per_cap ~ region, data = datos1, col=3:4, main = "PIB per cápita")
 boxplot(densidad_pobl_Km2 ~ region, data = datos1, col=3:4, main = "Densidad de población por km2")
 ```
 
+####
+#### Discusión de los histogramas de Electricidad fósil: Vemos como en ambas regiones existe un país que usa excesivamente estas energías, en Oceanía es Australia probablemente al ser el mas desarrollado, en Asia vemos como la diferencia entre el país dominante y los demás es brutal, incluso mucho mas notoria que entre los países de Oceanía con Australia.
+#### Discusión de los histogramas de electricidad fósil de bajas emisiones: Estas gráficas tienen una dispersión bastante menor a las anteriores, además vemos como en Asia en algunas variables no hay datos, esto se puede deber a que probablemente no utilicen este tipo de energías, además vemos como se usan mas en Asia que en Oceanía a diferencia de las energías fósiles.
+#### Discusión histograma de energías renovables: Podemos apreciar como aquí otra vez se utilizan más en Asia que en Oceanía, la gráfica de Oceanía es bastante similar a la anterior solo que con valores mas dispersos y en Asia de nuevo existen bastantes países sin datos.
+#### Análisis histograma de PIB: En Oceanía podemos observar una dispersión altísima y datos mucho mas elevados que en Asia Central, donde también vemos una gran dispersión pero menor a la de Oceanía, en Oceanía existe esta dispersión debido a la super potencia que ahí se encuentra como lo es Australia.
+#### Análisis histograma población: Aquí en ambas regiones vemos una falta de datos y una dispersión nula en Oceanía mientras que en Asia hay solo dos datos y una diferencia bastante importante entre ellos, es importante señalar que Australia su población esta en nucleos muy pequeños, por lo que su densidad general puede ser engañosa.
 ### Análisis de Relación
 
 #### Calcula el coeficiente de correlación para todas las variables / Gráfico de dispersión
@@ -211,3 +227,6 @@ plot(R2$electrd_fosiles, R2$energ_renov, col = "blue", main = "Asia Central", xl
 plot(R2$electrd_de_f_bajas_carb, R2$energ_renov, col = "blue", main = "Asia Central", xlab = "Electricidad de origen de fuentes bajas en carbono", ylab = "Electricidad de origen renovable")
 plot(R2$PIB_per_cap, R2$densidad_pobl_Km2, col = "blue", main = "Asia Central", xlab = "PIB per cápita", ylab = "Densidad de población por km2")
 ```
+
+###
+#### Conclusión: Podemos concluir con el análisis de estos datos que en Asia Central hay una consciencia bastante grande sobre el uso de energías limpias sin embargo también enfrentan graves problemas de sobrepoblación y económicos, mientras que en Oceanía no hay un uso elevado de energías renovables pero tienen una gran economía, aunque esto puede ser engañoso, pues en Australia es donde se encuentra la mayor parte de la riqueza pero al ser tan grande la riqueza de este país aparenta que la región esta bastante bien, se puede observar que el uso de energías fósiles podría tener una relación con la riqueza de un país, pero aunque estos datos sugieran eso nosotros no lo creemos, pues los países con mejor economía del mundo como los nórdicos utilizan muchas energías renovables, creemos que la diferencia economica se debe al gigante australiano y al problema grave de sobrepoblación que enfrenta Asia Central.
